@@ -15,6 +15,12 @@ MBG 加了配置参数，例如不自动生成注解，布尔类的列去掉 "is
 自定义了类型转换，TIMESTAMP 转 Instant，TINYINT 转 Boolean，
 都是参照马云爸爸的 Java 规范改的。
 
+## 血泪史
+
+- 测试 mybatis 通用 mapper 是否配置成功的时候总是报 NoSuchMethedException,
+研究了好久，最后仔细看了 abel533 大神的样例，发现 MapperScan 注解要用 tk.mybatis.spring.annotation.MapperScan,
+看来以后要更仔细地学习样例。
+
 ## 参考链接
 
 > [spring-boot-api-project-seed](https://github.com/lihengming/spring-boot-api-project-seed) - [lihengming](https://github.com/lihengming)
