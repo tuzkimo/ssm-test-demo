@@ -1,85 +1,196 @@
 package me.tuzkimo.demo.model;
 
 import java.time.Instant;
+import javax.persistence.*;
 
 public class User {
-  private Long id;
+    /**
+     * 主键
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  private String uid;
+    /**
+     * 用户 ID
+     */
+    private String uid;
 
-  private String name;
+    /**
+     * 用户名
+     */
+    private String name;
 
-  private String password;
+    /**
+     * 密码 Hash
+     */
+    private String password;
 
-  private Boolean admin;
+    /**
+     * 是否管理员
+     */
+    @Column(name = "is_admin")
+    private Boolean admin;
 
-  private Boolean banned;
+    /**
+     * 是否已禁用
+     */
+    @Column(name = "is_banned")
+    private Boolean banned;
 
-  private Instant gmtCreate;
+    /**
+     * 创建时间
+     */
+    @Column(name = "gmt_create")
+    private Instant gmtCreate;
 
-  private Instant gmtModified;
+    /**
+     * 修改时间
+     */
+    @Column(name = "gmt_modified")
+    private Instant gmtModified;
 
-  public Long getId() {
-    return id;
-  }
+    /**
+     * 获取主键
+     *
+     * @return id - 主键
+     */
+    public Long getId() {
+        return id;
+    }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    /**
+     * 设置主键
+     *
+     * @param id 主键
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-  public String getUid() {
-    return uid;
-  }
+    /**
+     * 获取用户 ID
+     *
+     * @return uid - 用户 ID
+     */
+    public String getUid() {
+        return uid;
+    }
 
-  public void setUid(String uid) {
-    this.uid = uid;
-  }
+    /**
+     * 设置用户 ID
+     *
+     * @param uid 用户 ID
+     */
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
 
-  public String getName() {
-    return name;
-  }
+    /**
+     * 获取用户名
+     *
+     * @return name - 用户名
+     */
+    public String getName() {
+        return name;
+    }
 
-  public void setName(String name) {
-    this.name = name;
-  }
+    /**
+     * 设置用户名
+     *
+     * @param name 用户名
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-  public String getPassword() {
-    return password;
-  }
+    /**
+     * 获取密码 Hash
+     *
+     * @return password - 密码 Hash
+     */
+    public String getPassword() {
+        return password;
+    }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+    /**
+     * 设置密码 Hash
+     *
+     * @param password 密码 Hash
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-  public Boolean getAdmin() {
-    return admin;
-  }
+    /**
+     * 获取是否管理员
+     *
+     * @return is_admin - 是否管理员
+     */
+    public Boolean getAdmin() {
+        return admin;
+    }
 
-  public void setAdmin(Boolean admin) {
-    this.admin = admin;
-  }
+    /**
+     * 设置是否管理员
+     *
+     * @param admin 是否管理员
+     */
+    public void setAdmin(Boolean admin) {
+        this.admin = admin;
+    }
 
-  public Boolean getBanned() {
-    return banned;
-  }
+    /**
+     * 获取是否已禁用
+     *
+     * @return is_banned - 是否已禁用
+     */
+    public Boolean getBanned() {
+        return banned;
+    }
 
-  public void setBanned(Boolean banned) {
-    this.banned = banned;
-  }
+    /**
+     * 设置是否已禁用
+     *
+     * @param banned 是否已禁用
+     */
+    public void setBanned(Boolean banned) {
+        this.banned = banned;
+    }
 
-  public Instant getGmtCreate() {
-    return gmtCreate;
-  }
+    /**
+     * 获取创建时间
+     *
+     * @return gmt_create - 创建时间
+     */
+    public Instant getGmtCreate() {
+        return gmtCreate;
+    }
 
-  public void setGmtCreate(Instant gmtCreate) {
-    this.gmtCreate = gmtCreate;
-  }
+    /**
+     * 设置创建时间
+     *
+     * @param gmtCreate 创建时间
+     */
+    public void setGmtCreate(Instant gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
 
-  public Instant getGmtModified() {
-    return gmtModified;
-  }
+    /**
+     * 获取修改时间
+     *
+     * @return gmt_modified - 修改时间
+     */
+    public Instant getGmtModified() {
+        return gmtModified;
+    }
 
-  public void setGmtModified(Instant gmtModified) {
-    this.gmtModified = gmtModified;
-  }
+    /**
+     * 设置修改时间
+     *
+     * @param gmtModified 修改时间
+     */
+    public void setGmtModified(Instant gmtModified) {
+        this.gmtModified = gmtModified;
+    }
 }

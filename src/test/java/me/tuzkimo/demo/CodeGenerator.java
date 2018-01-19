@@ -6,6 +6,7 @@ import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.internal.DefaultShellCallback;
+import tk.mybatis.mapper.generator.MapperPlugin;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -13,18 +14,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static me.tuzkimo.demo.core.ProjectConstant.MAPPER_INTERFACE_REFERENCE;
 import static me.tuzkimo.demo.core.ProjectConstant.PACKAGE_MAPPER;
 import static me.tuzkimo.demo.core.ProjectConstant.PACKAGE_MODEL;
 
 /**
  * model, mapper, service 和 controller 的自动生成器
- * 参考大神 <a href="https://github.com/lihengming/">lihengming</a>
- * 的 <a href="https://github.com/lihengming/spring-boot-api-project-seed/blob/master/src/test/java/CodeGenerator.java">CodeGenerator</a> 写的
- * 基本上一样，建议看原创的
+ * 参考大神 lihengming 的 CodeGenerator 写的
  *
  * @author tuzkimo
- * @version %I%, %G%
- * @since 1.0
+ * @date 2018-01-16
  */
 public class CodeGenerator {
   // JDBC 连接参数
@@ -114,6 +113,12 @@ public class CodeGenerator {
     jdbcConnectionConfiguration.setPassword(JDBC_PASSWORD);
     jdbcConnectionConfiguration.setDriverClass(JDBC_DRIVER_CLASS_NAME);
     context.setJdbcConnectionConfiguration(jdbcConnectionConfiguration);
+
+    // 添加通用 mapper 插件
+    PluginConfiguration pluginConfiguration = new PluginConfiguration();
+    pluginConfiguration.setConfigurationType(MapperPlugin.class.getName());
+    pluginConfiguration.addProperty("mappers", MAPPER_INTERFACE_REFERENCE);
+    context.addPluginConfiguration(pluginConfiguration);
 
     // 配置 model 生成路径
     JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = new JavaModelGeneratorConfiguration();
