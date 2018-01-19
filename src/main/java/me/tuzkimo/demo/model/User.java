@@ -193,4 +193,18 @@ public class User {
     public void setGmtModified(Instant gmtModified) {
         this.gmtModified = gmtModified;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+            "id=" + id +
+            ", uid='" + uid + '\'' +
+            ", name='" + name + '\'' +
+            ", password='" + password + '\'' +
+            ", admin=" + admin +
+            ", banned=" + banned +
+            ", gmtCreate=" + gmtCreate +
+            ", gmtModified=" + gmtModified +
+            '}';
+    }
 }

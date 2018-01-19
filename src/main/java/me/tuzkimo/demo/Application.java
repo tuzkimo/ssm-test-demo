@@ -1,5 +1,8 @@
 package me.tuzkimo.demo;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import me.tuzkimo.demo.dao.UserMapper;
 import me.tuzkimo.demo.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,7 @@ public class Application {
 
 	@RequestMapping("/user")
 	public List<User> getAll() {
+		PageHelper.startPage(1, 2);
 		return userMapper.selectAll();
 	}
 
