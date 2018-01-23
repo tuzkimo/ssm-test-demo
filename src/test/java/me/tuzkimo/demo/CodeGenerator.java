@@ -1,6 +1,8 @@
 package me.tuzkimo.demo;
 
 import com.google.common.base.CaseFormat;
+import com.google.common.base.Charsets;
+import freemarker.template.TemplateExceptionHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.*;
@@ -8,15 +10,14 @@ import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 import tk.mybatis.mapper.generator.MapperPlugin;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDate;
+import java.util.*;
 
-import static me.tuzkimo.demo.core.ProjectConstant.MAPPER_INTERFACE_REFERENCE;
-import static me.tuzkimo.demo.core.ProjectConstant.PACKAGE_MAPPER;
-import static me.tuzkimo.demo.core.ProjectConstant.PACKAGE_MODEL;
+import static me.tuzkimo.demo.core.ProjectConstant.*;
 
 /**
  * model, mapper, service 和 controller 的自动生成器
@@ -36,9 +37,16 @@ public class CodeGenerator {
   private static final String PATH_PROJECT = System.getProperty("user.dir");
   private static final String PATH_JAVA = "/src/main/java";
   private static final String PATH_RESOURCES = "/src/main/resources";
+  private static final String PATH_TEMPLATE = PATH_PROJECT + "/src/test/resources/generator/template";
+  private static final String PATH_PACKAGE_SERVICE = packageConvertPath(PACKAGE_SERVICE);
+  private static final String PATH_PACKAGE_SERVICE_IMPL = packageConvertPath(PACKAGE_SERVICE_IMPL);
+
+  private static final String AUTHOR = "CodeGenerator";
+  private static final String DATE = LocalDate.now().toString();
 
   public static void main(String[] args) {
-    generateModelAndMapper("user", null);
+//    generateModelAndMapper("user", null);
+    generateService("user", null);
   }
 
   /**
@@ -58,18 +66,8 @@ public class CodeGenerator {
 
       // 开始生成 model, mapper 接口和 mapper xml
       generator.generate(null);
-    } catch (InvalidConfigurationException e) {
-      System.err.println("配置信息验证不通过");
-      e.printStackTrace();
-    } catch (SQLException e) {
-      System.err.println("数据库连接错误或 SQL 语句执行出错");
-      e.printStackTrace();
-    } catch (IOException e) {
-      System.err.println("文件读写错误");
-      e.printStackTrace();
-    } catch (InterruptedException e) {
-      System.err.println("线程中断");
-      e.printStackTrace();
+    } catch (Exception e) {
+      throw new RuntimeException("生成 model, mapper 接口和 mapper xml 失败: " + e);
     }
 
     // 验证生成结果
@@ -78,7 +76,7 @@ public class CodeGenerator {
       throw new RuntimeException("生成 model, mapper 接口和 mapper xml 失败: " + warnings);
     }
     if (StringUtils.isEmpty(modelName)) {
-      modelName = tableNameConvertUpperCamel(tableName);
+      modelName = lowerUnderscoreConvertUpperCamel(tableName);
     }
     System.out.println(modelName + ".java 生成成功");
     System.out.println(modelName + "Mapper.java 生成成功");
@@ -166,7 +164,67 @@ public class CodeGenerator {
     return configuration;
   }
 
-  private static String tableNameConvertUpperCamel(String tableName) {
-    return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, tableName);
+  /**
+   * 用 FreeMarker 生成 service 接口及实现类
+   *
+   * @param tableName 数据表名
+   * @param modelName 生成 model 名
+   */
+  public static void generateService(String tableName, String modelName) {
+    // 构建 FreeMarker 数据模型
+    Map<String, Object> data = new HashMap<>();
+    data.put("author", AUTHOR);
+    data.put("date", DATE);
+    String modelNameUpperCamel = StringUtils.isEmpty(modelName) ? lowerUnderscoreConvertUpperCamel(tableName) : modelName;
+    data.put("modelNameUpperCamel", modelNameUpperCamel);
+    data.put("modelNameLowerCamel", upperCamelConvertLowerCamel(modelNameUpperCamel));
+    data.put("basePackage", PACKAGE_BASE);
+
+    try {
+      // 获取 FreeMarker Configuration
+      freemarker.template.Configuration configuration = getConfiguration();
+
+      // 新建 Service 接口源文件
+      File serviceFile = new File(PATH_PROJECT + PATH_JAVA + PATH_PACKAGE_SERVICE + modelNameUpperCamel + "Service.java");
+      if (!serviceFile.getParentFile().exists()) {
+        serviceFile.getParentFile().mkdir();
+      }
+
+      // 根据 service.ftl 模板写入数据，生成对应 model 的 service 接口
+      configuration.getTemplate("service.ftl").process(data, new FileWriter(serviceFile));
+      System.out.println(modelNameUpperCamel + "Service.java 生成成功");
+
+      // 新建 Service 实现类源文件
+      File serviceImplFile = new File(PATH_PROJECT + PATH_JAVA + PATH_PACKAGE_SERVICE_IMPL + modelNameUpperCamel + "ServiceImpl.java");
+      if (!serviceImplFile.getParentFile().exists()) {
+        serviceImplFile.getParentFile().mkdir();
+      }
+
+      // 根据 service-impl.ftl 模板写入数据，生成对应 model 的 service 实现类
+      configuration.getTemplate("service-impl.ftl").process(data, new FileWriter(serviceImplFile));
+      System.out.println(modelNameUpperCamel + "ServiceImpl.java 生成成功");
+    } catch (Exception e) {
+      throw new RuntimeException("生成 Service 失败", e);
+    }
+  }
+
+  private static freemarker.template.Configuration getConfiguration() throws IOException {
+    freemarker.template.Configuration configuration = new freemarker.template.Configuration();
+    configuration.setDirectoryForTemplateLoading(new File(PATH_TEMPLATE));
+    configuration.setDefaultEncoding(Charsets.UTF_8.name());
+    configuration.setTemplateExceptionHandler(TemplateExceptionHandler.IGNORE_HANDLER);
+    return configuration;
+  }
+
+  private static String lowerUnderscoreConvertUpperCamel(String lowerUnderscoreStr) {
+    return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, lowerUnderscoreStr);
+  }
+
+  private static String upperCamelConvertLowerCamel(String upperCamelStr) {
+    return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, upperCamelStr);
+  }
+
+  private static String packageConvertPath(String packageName) {
+    return String.format("/%s/", packageName.contains(".") ? packageName.replaceAll("\\.", "/") : packageName);
   }
 }

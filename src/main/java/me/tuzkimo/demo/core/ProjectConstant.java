@@ -14,6 +14,8 @@ public class ProjectConstant {
   public static final String PACKAGE_BASE = "me.tuzkimo.demo";
   public static final String PACKAGE_MODEL = PACKAGE_BASE + ".model";
   public static final String PACKAGE_MAPPER = PACKAGE_BASE + ".dao";
+  public static final String PACKAGE_SERVICE = PACKAGE_BASE + ".service";
+  public static final String PACKAGE_SERVICE_IMPL = PACKAGE_SERVICE + ".impl";
 
   public static final String MAPPER_INTERFACE_REFERENCE = PACKAGE_BASE + ".core.Mapper";
 }
