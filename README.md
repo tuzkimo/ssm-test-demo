@@ -12,7 +12,7 @@
 
 也是参考 lihengming 大神做的。
 MBG 加了配置参数，例如不自动生成注解，布尔类的列去掉 "is_" 前缀，
-自定义了类型转换~~，TIMESTAMP 转 Instant~~，TINYINT 转 Boolean，
+自定义了类型转换，~~TIMESTAMP 转 Instant~~，TINYINT 转 Boolean，
 都是参照马云爸爸的 Java 规范改的。
 把用 FreeMarker 生成 Service 和 Controller 的代码改为可复用的方法，
 现在可根据不同的模板、路径、后缀和模型生成不同的类。
