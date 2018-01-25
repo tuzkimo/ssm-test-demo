@@ -17,12 +17,17 @@ MBG 加了配置参数，例如不自动生成注解，布尔类的列去掉 "is
 把用 FreeMarker 生成 Service 和 Controller 的代码改为可复用的方法，
 现在可根据不同的模板、路径、后缀和模型生成不同的类。
 
+## 统一异常处理
+
+改用 ControllerAdvice 处理，感觉还是这样比较直观一些
+
 ## 血泪史
 
 - 测试 mybatis 通用 mapper 是否配置成功的时候总是报 NoSuchMethedException,
 研究了好久，最后仔细看了 abel533 大神的样例，发现 MapperScan 注解要用 tk.mybatis.spring.annotation.MapperScan,
 看来以后要更仔细地学习样例。
 - 本来想用 jdk8 新的 java.time 取代 Date 的，最后发现 JSON 转换的时候不认了，看来只能等新的版本或者自定义转换了。
+- Tomcat 默认会拦截 404, 做统一异常处理时记得在 application.properties 添加 `spring.mvc.throw-exception-if-no-handler-found=true`
 
 ## 参考链接
 

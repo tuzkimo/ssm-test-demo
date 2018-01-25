@@ -4,6 +4,8 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.util.List;
@@ -26,5 +28,11 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         SerializerFeature.UseISO8601DateFormat);
     converter.setCharset(FastJsonHttpMessageConverter.UTF8);
     converters.add(converter);
+  }
+
+  // 允许跨域
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+    registry.addMapping("/**");
   }
 }
