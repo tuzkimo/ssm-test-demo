@@ -1,9 +1,9 @@
 package me.tuzkimo.demo.service.impl;
 
 import me.tuzkimo.demo.core.AbstractService;
-import me.tuzkimo.demo.dao.UserMapper;
-import me.tuzkimo.demo.model.User;
-import me.tuzkimo.demo.service.UserService;
+import me.tuzkimo.demo.dao.BookMapper;
+import me.tuzkimo.demo.model.Book;
+import me.tuzkimo.demo.service.BookService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,8 +14,8 @@ import javax.annotation.Resource;
  */
 @Service
 @Transactional
-public class UserServiceImpl extends AbstractService<User> implements UserService {
+public class BookServiceImpl extends AbstractService<Book> implements BookService {
 
   @Resource
-  private UserMapper userMapper;
+  private BookMapper bookMapper;
 }

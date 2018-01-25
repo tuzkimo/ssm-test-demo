@@ -18,27 +18,7 @@ import java.util.List;
 
 @SpringBootApplication
 @MapperScan("me.tuzkimo.demo.dao")
-@RestController
-@RequestMapping("/api")
 public class Application {
-
-	@Autowired
-	private UserService userService;
-
-	@RequestMapping("/user")
-	public List<User> getAll() {
-		return userService.findAll();
-	}
-
-//	@RequestMapping("/user/{id}")
-//	public User getById(@PathVariable Long id) {
-//		return userService.findById(id);
-//	}
-
-	@RequestMapping("/user/{uid}")
-	public User getByUid(@PathVariable String uid) {
-		return userService.findBy("uid", uid);
-	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);

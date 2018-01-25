@@ -1,6 +1,6 @@
 package me.tuzkimo.demo.model;
 
-import java.time.Instant;
+import java.util.Date;
 import javax.persistence.*;
 
 public class User {
@@ -42,13 +42,13 @@ public class User {
      * 创建时间
      */
     @Column(name = "gmt_create")
-    private Instant gmtCreate;
+    private Date gmtCreate;
 
     /**
      * 修改时间
      */
     @Column(name = "gmt_modified")
-    private Instant gmtModified;
+    private Date gmtModified;
 
     /**
      * 获取主键
@@ -163,7 +163,7 @@ public class User {
      *
      * @return gmt_create - 创建时间
      */
-    public Instant getGmtCreate() {
+    public Date getGmtCreate() {
         return gmtCreate;
     }
 
@@ -172,7 +172,7 @@ public class User {
      *
      * @param gmtCreate 创建时间
      */
-    public void setGmtCreate(Instant gmtCreate) {
+    public void setGmtCreate(Date gmtCreate) {
         this.gmtCreate = gmtCreate;
     }
 
@@ -181,7 +181,7 @@ public class User {
      *
      * @return gmt_modified - 修改时间
      */
-    public Instant getGmtModified() {
+    public Date getGmtModified() {
         return gmtModified;
     }
 
@@ -190,21 +190,7 @@ public class User {
      *
      * @param gmtModified 修改时间
      */
-    public void setGmtModified(Instant gmtModified) {
+    public void setGmtModified(Date gmtModified) {
         this.gmtModified = gmtModified;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-            "id=" + id +
-            ", uid='" + uid + '\'' +
-            ", name='" + name + '\'' +
-            ", password='" + password + '\'' +
-            ", admin=" + admin +
-            ", banned=" + banned +
-            ", gmtCreate=" + gmtCreate +
-            ", gmtModified=" + gmtModified +
-            '}';
     }
 }

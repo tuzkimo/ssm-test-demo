@@ -13,8 +13,8 @@ import tk.mybatis.mapper.generator.MapperPlugin;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.SQLException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static me.tuzkimo.demo.core.ProjectConstant.*;
@@ -23,8 +23,7 @@ import static me.tuzkimo.demo.core.ProjectConstant.*;
  * model, mapper, service 和 controller 的自动生成器
  * 参考大神 lihengming 的 CodeGenerator 写的
  *
- * @author tuzkimo
- * @date 2018-01-16
+ * Created by tuzkimo on 2018-01-16
  */
 public class CodeGenerator {
   // JDBC 连接参数
@@ -40,18 +39,43 @@ public class CodeGenerator {
   private static final String PATH_TEMPLATE = PATH_PROJECT + "/src/test/resources/generator/template";
   private static final String PATH_PACKAGE_SERVICE = packageConvertPath(PACKAGE_SERVICE);
   private static final String PATH_PACKAGE_SERVICE_IMPL = packageConvertPath(PACKAGE_SERVICE_IMPL);
+  private static final String PATH_PACKAGE_CONTROLLER = packageConvertPath(PACKAGE_CONTROLLER);
 
+  // Javadoc 信息
   private static final String AUTHOR = "CodeGenerator";
-  private static final String DATE = LocalDate.now().toString();
+  private static final String DATE = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
   public static void main(String[] args) {
-//    generateModelAndMapper("user", null);
-    generateService("user", null);
+    // 输入数据表名生成代码
+    generateCode("user", "book");
+//    generateCodeByCustomModelName("tb_user", "User");
   }
 
   /**
-   * 调用 mybatis generator 生成 model, mapper 接口和 mapper xml
-   *
+   * 批量生成代码，默认模型名根据数据表名转换而成
+   * @param tableNames 数据表名...
+   */
+  public static void generateCode(String... tableNames) {
+    for (String tableName : tableNames) {
+      generateCodeByCustomModelName(tableName, null);
+    }
+  }
+
+  /**
+   * 根据数据表名及自定义模型名生成代码
+   * @param tableName 数据表名
+   * @param modelName 生成 model 名
+   */
+  public static void generateCodeByCustomModelName(String tableName, String modelName) {
+    generateModelAndMapper(tableName, modelName);
+    modelName = StringUtils.isEmpty(modelName) ? tableNameConvertModelName(tableName) : modelName;
+    generateCodeByFreeMarker(modelName, PATH_PACKAGE_SERVICE, "Service.java", "service.ftl");
+    generateCodeByFreeMarker(modelName, PATH_PACKAGE_SERVICE_IMPL, "ServiceImpl.java", "service-impl.ftl");
+    generateCodeByFreeMarker(modelName, PATH_PACKAGE_CONTROLLER, "Controller.java", "controller.ftl");
+  }
+
+  /**
+   * 调用 MyBatis Generator 生成 model, mapper 接口和 mapper xml
    * @param tableName 数据表名
    * @param modelName 生成 model 名
    */
@@ -71,12 +95,12 @@ public class CodeGenerator {
     }
 
     // 验证生成结果
-    boolean isGenerateFailed = Objects.isNull(generator) || generator.getGeneratedJavaFiles().isEmpty() || generator.getGeneratedXmlFiles().isEmpty();
+    boolean isGenerateFailed = generator.getGeneratedJavaFiles().isEmpty() || generator.getGeneratedXmlFiles().isEmpty();
     if (isGenerateFailed) {
       throw new RuntimeException("生成 model, mapper 接口和 mapper xml 失败: " + warnings);
     }
     if (StringUtils.isEmpty(modelName)) {
-      modelName = lowerUnderscoreConvertUpperCamel(tableName);
+      modelName = tableNameConvertModelName(tableName);
     }
     System.out.println(modelName + ".java 生成成功");
     System.out.println(modelName + "Mapper.java 生成成功");
@@ -84,11 +108,10 @@ public class CodeGenerator {
   }
 
   /**
-   * 配置 mybatis generator
-   *
+   * 配置 MyBatis Generator
    * @param tableName 数据表名称
    * @param modelName 生成 model 名称
-   * @return mybatis generator configuration
+   * @return MyBatis Generator Configuration
    * @throws InvalidConfigurationException 配置信息验证不通过
    */
   private static Configuration configMybatisGenerator(String tableName, String modelName) throws InvalidConfigurationException {
@@ -165,46 +188,29 @@ public class CodeGenerator {
   }
 
   /**
-   * 用 FreeMarker 生成 service 接口及实现类
-   *
-   * @param tableName 数据表名
-   * @param modelName 生成 model 名
+   * 使用 FreeMarker 生成代码文件
+   * @param modelName 对应模型
+   * @param path 生成文件包路径
+   * @param fileNameSuffix 文件名后缀
+   * @param templateName 模板名
    */
-  public static void generateService(String tableName, String modelName) {
-    // 构建 FreeMarker 数据模型
-    Map<String, Object> data = new HashMap<>();
-    data.put("author", AUTHOR);
-    data.put("date", DATE);
-    String modelNameUpperCamel = StringUtils.isEmpty(modelName) ? lowerUnderscoreConvertUpperCamel(tableName) : modelName;
-    data.put("modelNameUpperCamel", modelNameUpperCamel);
-    data.put("modelNameLowerCamel", upperCamelConvertLowerCamel(modelNameUpperCamel));
-    data.put("basePackage", PACKAGE_BASE);
+  private static void generateCodeByFreeMarker(String modelName, String path, String fileNameSuffix, String templateName) {
+    Map<String, Object> data = getDataModel(modelName);
 
     try {
-      // 获取 FreeMarker Configuration
       freemarker.template.Configuration configuration = getConfiguration();
 
-      // 新建 Service 接口源文件
-      File serviceFile = new File(PATH_PROJECT + PATH_JAVA + PATH_PACKAGE_SERVICE + modelNameUpperCamel + "Service.java");
-      if (!serviceFile.getParentFile().exists()) {
-        serviceFile.getParentFile().mkdir();
+      // 根据包路径、模型名及文件名后缀新建空白源文件，父文件夹不存在则新建
+      File file = new File(PATH_PROJECT + PATH_JAVA + path + modelName + fileNameSuffix);
+      if (!file.getParentFile().exists()) {
+        file.getParentFile().mkdir();
       }
 
-      // 根据 service.ftl 模板写入数据，生成对应 model 的 service 接口
-      configuration.getTemplate("service.ftl").process(data, new FileWriter(serviceFile));
-      System.out.println(modelNameUpperCamel + "Service.java 生成成功");
-
-      // 新建 Service 实现类源文件
-      File serviceImplFile = new File(PATH_PROJECT + PATH_JAVA + PATH_PACKAGE_SERVICE_IMPL + modelNameUpperCamel + "ServiceImpl.java");
-      if (!serviceImplFile.getParentFile().exists()) {
-        serviceImplFile.getParentFile().mkdir();
-      }
-
-      // 根据 service-impl.ftl 模板写入数据，生成对应 model 的 service 实现类
-      configuration.getTemplate("service-impl.ftl").process(data, new FileWriter(serviceImplFile));
-      System.out.println(modelNameUpperCamel + "ServiceImpl.java 生成成功");
+      // 根据模板及数据模型向空白源文件写入内容
+      configuration.getTemplate(templateName).process(data, new FileWriter(file));
+      System.out.println(modelName + fileNameSuffix + " 生成成功");
     } catch (Exception e) {
-      throw new RuntimeException("生成 Service 失败", e);
+      throw new RuntimeException("生成 " + modelName + fileNameSuffix + " 失败", e);
     }
   }
 
@@ -216,15 +222,30 @@ public class CodeGenerator {
     return configuration;
   }
 
-  private static String lowerUnderscoreConvertUpperCamel(String lowerUnderscoreStr) {
-    return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, lowerUnderscoreStr);
+  private static Map<String, Object> getDataModel(String modelName) {
+    Map<String, Object> data = new HashMap<>();
+    data.put("author", AUTHOR);
+    data.put("date", DATE);
+    data.put("basePackage", PACKAGE_BASE);
+    data.put("modelNameUpperCamel", modelName);
+    data.put("modelNameLowerCamel", modelNameConvertLowerCamel(modelName));
+    data.put("baseRequestMapping", modelNameConvertMappingPath(modelName));
+    return data;
   }
 
-  private static String upperCamelConvertLowerCamel(String upperCamelStr) {
-    return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, upperCamelStr);
+  private static String tableNameConvertModelName(String tableName) {
+    return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, tableName);
+  }
+
+  private static String modelNameConvertLowerCamel(String modelName) {
+    return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, modelName);
   }
 
   private static String packageConvertPath(String packageName) {
     return String.format("/%s/", packageName.contains(".") ? packageName.replaceAll("\\.", "/") : packageName);
+  }
+
+  private static String modelNameConvertMappingPath(String modelName) {
+    return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, modelName);
   }
 }

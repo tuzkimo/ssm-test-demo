@@ -7,7 +7,6 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.*;
 
 /**
@@ -56,8 +55,7 @@ public class JavaTypeResolverMyImpl implements JavaTypeResolver {
     this.typeMap.put(5, new JavaTypeResolverMyImpl.JdbcTypeInformation("SMALLINT", new FullyQualifiedJavaType(Short.class.getName())));
     this.typeMap.put(2002, new JavaTypeResolverMyImpl.JdbcTypeInformation("STRUCT", new FullyQualifiedJavaType(Object.class.getName())));
     this.typeMap.put(92, new JavaTypeResolverMyImpl.JdbcTypeInformation("TIME", new FullyQualifiedJavaType(Date.class.getName())));
-    // TIMESTAMP 由默认的转 Date 改为 Instant
-    this.typeMap.put(93, new JavaTypeResolverMyImpl.JdbcTypeInformation("TIMESTAMP", new FullyQualifiedJavaType(Instant.class.getName())));
+    this.typeMap.put(93, new JavaTypeResolverMyImpl.JdbcTypeInformation("TIMESTAMP", new FullyQualifiedJavaType(Date.class.getName())));
     // TINYINT 由默认的转 Byte 改为 Boolean
     this.typeMap.put(-6, new JavaTypeResolverMyImpl.JdbcTypeInformation("TINYINT", new FullyQualifiedJavaType(Boolean.class.getTypeName())));
     this.typeMap.put(-3, new JavaTypeResolverMyImpl.JdbcTypeInformation("VARBINARY", new FullyQualifiedJavaType("byte[]")));
